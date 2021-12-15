@@ -172,7 +172,3 @@ class GameDisplay:
         """
         self._score_var.set("Score: " + str(val))
 
-
-if __name__ == "__main__":
-    gd = GameDisplay()
-    gd.start()
