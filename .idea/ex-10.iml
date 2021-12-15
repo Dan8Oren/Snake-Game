@@ -9,4 +9,7 @@
     <option name="format" value="PLAIN" />
     <option name="myDocStringFormat" value="Plain" />
   </component>
+    <orderEntry type="jdk" jdkName="Python 3.9 (experiments)" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
 </module>
