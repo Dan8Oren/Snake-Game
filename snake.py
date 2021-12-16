@@ -108,9 +108,9 @@ class Snake:
         """
         row, col = self.get_head_location()
         if movekey == "Up":
-            return (row - 1, col)
-        elif movekey == "Down":
             return (row + 1, col)
+        elif movekey == "Down":
+            return (row - 1, col)
         elif movekey == "Left":
             return (row, col - 1)
         elif movekey == "Right":
@@ -130,18 +130,17 @@ class Snake:
             return prev_move_key
         return movekey
 
-    def move(self, movekey, prev_move_key):
+    def move(self, movekey):
         """
         moves the snake for one turn
         :param movekey: the current movekey
         :param prev_move_key: the movekey of the previous move
         :return: the move the snake did eventually
         """
-        move = self.possible_move(movekey, prev_move_key)
-        next_head = self.movement_requirements(move)
+        next_head = self.movement_requirements(movekey)
         self.add_first(next_head)
         self.remove_last()
-        return move
+        return movekey
 
     def eat_apple(self, movekey, prev_move_key):
         """
