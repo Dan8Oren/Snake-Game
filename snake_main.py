@@ -12,7 +12,7 @@ def main_loop(gd: GameDisplay) -> None:
     game_board = board.Board()
     initialize_game(game_board)
     bomb_coords = game_board.bomb.get_location()
-    snake_coords = [10, 10]
+    snake_coords = game_board.snake.get_snake_cells()
     play_game = True
     while play_game:
         key_clicked = gd.get_key_clicked()
@@ -27,13 +27,17 @@ def main_loop(gd: GameDisplay) -> None:
             game_board.bomb.is_exploded = True
 
         update_display(gd, game_board)
-        gd.draw_cell(snake_coords[0], snake_coords[1], "black")
+        draw_snake(snake_coords, gd)
         gd.end_round()
 
 
 def initialize_game(game_board):
+    game_board.add_snake()
     create_bomb(game_board)
 
+def draw_snake(snake_coords, gd):
+    for cell in snake_coords:
+        gd.draw_cell(cell[0], cell[1], "black")
 
 def create_bomb(game_board):
     is_bomb_created = False
