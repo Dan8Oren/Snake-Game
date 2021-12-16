@@ -6,6 +6,7 @@ from snake import Snake
 SNAKE = "s"
 BOMB = "b"
 APPLE = "a"
+SHOCK_WAVE = "s"
 START_ROW = 10
 START_COL = 10
 
@@ -51,7 +52,7 @@ class Board:
         :return: True upon success. False if failed
         """
         # TODO: row/col is opposite!?
-        col, row, radius, time = gp.get_random_bomb_data()
+        row,col,radius, time = gp.get_random_bomb_data()
 
         if not 0 <= row < len(self.board) and 0 <= col < len(self.board[0]):
             return False
@@ -83,38 +84,54 @@ class Board:
         """
 
         :return: A tuple which contains:
-        first value: False if the movement of the snake will lead to ending
-        the game. True upon success
-        second value: the movekey of the move, if the current move was legal.
-        otherwise, it will be None
-        third Value: True if the snake ate an apple, else False
+        first value: True if the movement of the snake will lead to ending
+        the game. False upon success
+        second Value: True if the snake ate an apple, else False
         """
         head_location = self.snake.get_head_location()
         snake_cells = self.snake.get_snake_cells()
 
         # if the snake hits himself
         if head_location in snake_cells[1:]:
-            return False, None, False
+            return True, False
 
         # if the snake crushes into the borders of the board
-        if head_location[0] < 0 or head_location[0] >= gp.HEIGHT or \
-                head_location[1] < 0 or head_location[1] >= gp.WIDTH:
-            return False, None, False
+        if head_location[0] < 0 or head_location[0] >= len(self.board) or \
+                head_location[1] < 0 or head_location[1] >= len(self.board[0]):
+            return True, False
 
         # if the snake hits a bomb
         if self.cell_content(head_location) == BOMB:
-            return False, None, False
+            return True, False
 
         # if the snake hits the shockwave of a bomb
         #todo !!!!!!!!!!!!!!!!!
         if ...:
-            return False, None, False
+            return True, False
 
         # if the snake ate an apple, act accordingly
         if self.cell_content(head_location) == APPLE:
             pass  #  todo!!!!!!!!!!!!!!1
 
 
+    def get_bomb_explosion(self):
+        width = len(self.board[0])
+        height = len(self.board)
+        shock_wave,collusion = self.bomb.get_explosion(self,width,height)
+        if shock_wave:
+            if collusion:
+                for ram in collusion:
+                    cell = self.cell_content(ram)
+                    if cell == APPLE:
+                        self.board[ram[0]][ram[1]] = SHOCK_WAVE
+                    else:
+                        return False
+            else:
+                for coord in shock_wave:
+                    self.board[coord[0]][coord[1]] = SHOCK_WAVE
+        else:
+            self.add_bomb()
+        return True
 
     def __str__(self):
         st = ""
