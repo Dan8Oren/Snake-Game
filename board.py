@@ -1,10 +1,13 @@
 import game_parameters as gp
 from apple import Apple
 from game_bomb import Bomb
+from snake import Snake
 
 SNAKE = "s"
 BOMB = "b"
 APPLE = "a"
+START_ROW = 10
+START_COL = 10
 
 
 class Board:
@@ -17,7 +20,7 @@ class Board:
                         range(gp.HEIGHT)]
         self.__lst_of_apples = []
         self.bomb = None
-        self.__snake = None
+        self.snake = None
 
     def cell_content(self, coordinate):
         """
@@ -48,7 +51,7 @@ class Board:
         :return: True upon success. False if failed
         """
         # TODO: row/col is opposite!?
-        row, col, radius, time = gp.get_random_bomb_data()
+        col, row, radius, time = gp.get_random_bomb_data()
 
         if not 0 <= row < len(self.board) and 0 <= col < len(self.board[0]):
             return False
@@ -58,6 +61,60 @@ class Board:
         self.bomb = Bomb(row, col, radius, time)
         self.board[row][col] = BOMB
         return True
+
+    def add_snake(self):
+        """
+        Adds a snake to the game
+        :return: None
+        """
+        self.snake = Snake()
+        self.snake.create_snake(START_ROW, START_COL)
+        s_cords = self.snake.get_snake_cells()
+        for cell in s_cords:
+            self.board[cell[0]][cell[1]] = SNAKE
+
+    def move_snake(self, movekey, prev_move_key):
+        """
+        :return:
+        """
+        pass
+
+    def check_snake_move(self):
+        """
+
+        :return: A tuple which contains:
+        first value: False if the movement of the snake will lead to ending
+        the game. True upon success
+        second value: the movekey of the move, if the current move was legal.
+        otherwise, it will be None
+        third Value: True if the snake ate an apple, else False
+        """
+        head_location = self.snake.get_head_location()
+        snake_cells = self.snake.get_snake_cells()
+
+        # if the snake hits himself
+        if head_location in snake_cells[1:]:
+            return False, None, False
+
+        # if the snake crushes into the borders of the board
+        if head_location[0] < 0 or head_location[0] >= gp.HEIGHT or \
+                head_location[1] < 0 or head_location[1] >= gp.WIDTH:
+            return False, None, False
+
+        # if the snake hits a bomb
+        if self.cell_content(head_location) == BOMB:
+            return False, None, False
+
+        # if the snake hits the shockwave of a bomb
+        #todo !!!!!!!!!!!!!!!!!
+        if ...:
+            return False, None, False
+
+        # if the snake ate an apple, act accordingly
+        if self.cell_content(head_location) == APPLE:
+            pass  #  todo!!!!!!!!!!!!!!1
+
+
 
     def __str__(self):
         st = ""
