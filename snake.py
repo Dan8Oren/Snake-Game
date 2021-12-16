@@ -135,12 +135,13 @@ class Snake:
         moves the snake for one turn
         :param movekey: the current movekey
         :param prev_move_key: the movekey of the previous move
-        :return: None
+        :return: the move the snake did eventually
         """
         move = self.possible_move(movekey, prev_move_key)
         next_head = self.movement_requirements(move)
         self.add_first(next_head)
         self.remove_last()
+        return move
 
     def eat_apple(self, movekey, prev_move_key):
         """
@@ -156,16 +157,16 @@ class Snake:
 
 
 
-s = Snake()
-s.create_snake()
-print(s.get_snake_cells())
-s.move("Up", "Up")
-print(s.get_snake_cells())
-s.move("Right", "Up")
-print(s.get_snake_cells())
-s.move("Left", "Right")
-print(s.get_snake_cells())
-s.eat_apple("Up", "Left")
-print(s.get_snake_cells())
-s.eat_apple("Down", "Up")
-print(s.get_snake_cells())
+# s = Snake()
+# s.create_snake()
+# print(s.get_snake_cells())
+# s.move("Up", "Up")
+# print(s.get_snake_cells())
+# s.move("Right", "Up")
+# print(s.get_snake_cells())
+# s.move("Left", "Right")
+# print(s.get_snake_cells())
+# s.eat_apple("Up", "Left")
+# print(s.get_snake_cells())
+# s.eat_apple("Down", "Up")
+# print(s.get_snake_cells())
