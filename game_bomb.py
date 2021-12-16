@@ -27,11 +27,10 @@ class Bomb:
         returns: list of explosion coordinates,
          collusion coordinates and a boolean if bomb should get a new location
         """
-        self.__is_exploded = True
         if self.__radius:
             radius = self.__radius.pop()
         else:
-            return None  # Shouldn't happen
+            return None, None  # Shouldn't happen
         if not self.__radius:
             self.end_bomb = True
         if radius == 0:
@@ -47,21 +46,26 @@ class Bomb:
             start_row = b_row - radius
         if 0 <= b_col - radius < board_width:
             start_col = b_col - radius
+        is_out_of_bounds = False
         for row in range(start_row, start_row + (2 * radius) + 1):
+            if is_out_of_bounds:
+                break
             for col in range(start_col, start_col + (2 * radius) + 1):
                 if abs(b_col - col) + abs(b_row - row) == radius:
-                    explosion_coordinates.append((row, col))
                     if 0 <= row < board_hight and 0 <= col < board_width:
-                        explosion_coordinates.append((row, col))
-                        if board.cell_content((row, col)):  # TODO: what should happen?
+                        if board.cell_content((row, col)):
                             collusion_coordinates.append((row, col))
+                        else:
+                            explosion_coordinates.append((row, col))
                     else:
-                        break
-                        # TODO: should make a new bomb in a new location
-            else:
-                return explosion_coordinates, collusion_coordinates
+                        is_out_of_bounds = True
+        if not is_out_of_bounds:
+            return explosion_coordinates, collusion_coordinates
+
         return [], []
 
+    def is_exploded(self):
+        return self.__is_exploded
 
     def update_time(self):
         self.__time -= 1

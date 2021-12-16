@@ -3,12 +3,10 @@ from apple import Apple
 from game_bomb import Bomb
 from snake import Snake
 
-SNAKE = "s"
-BOMB = "b"
-APPLE = "a"
-SHOCK_WAVE = "s"
-START_ROW = 10
-START_COL = 10
+SNAKE = "Black"
+BOMB = "red"
+APPLE = "green"
+SHOCK_WAVE = "orange"
 
 
 class Board:
@@ -16,12 +14,15 @@ class Board:
     add description here
     """
 
-    def __init__(self):
-        self.board = [[None for _ in range(gp.WIDTH)] for _ in
-                        range(gp.HEIGHT)]
-        self.__lst_of_apples = []
+    def __init__(self, snake_row, snake_col):
+        # A Dictionary! key:Tuple of coords, value:Apple class object
+        self.__lst_of_apples = {}  # ^^info^^
         self.bomb = None
+        self.__bomb_prints = []
         self.snake = None
+        self.__snake_start = (snake_row, snake_col)
+        self.__height = gp.HEIGHT
+        self.__width = gp.WIDTH
 
     def cell_content(self, coordinate):
         """
@@ -29,7 +30,12 @@ class Board:
         :param coordinate: tuple of (row,col) of the coordinate to check
         :return: The name if the object in coordinate, None if empty
         """
-        return self.board[coordinate[0]][coordinate[1]]
+        if coordinate in self.__bomb_prints:
+            return BOMB
+        if coordinate in self.__lst_of_apples:
+            return APPLE
+        #  TODO: Add Snake
+        return None
 
     def add_apple(self):
         """
@@ -37,30 +43,32 @@ class Board:
         :return: True upon success. False if failed
         """
         col, row, score = gp.get_random_apple_data()
-
+        if not 0 <= row < self.__height and 0 <= col < self.__width:
+            return False
         # if a cell in the board already has apple/bomb/snake/shockwave
         if self.cell_content((row, col)):
             return False
         apple = Apple(row, col, score)
-        self.__lst_of_apples.append(apple)
-        self.board[row][col] = APPLE
+        self.__lst_of_apples[(row, col)] = apple
         return True
+
+    def get_num_apples(self):
+        return len(self.__lst_of_apples)
 
     def add_bomb(self):
         """
         Adds a bomb to the board.
         :return: True upon success. False if failed
         """
-        # TODO: row/col is opposite!?
-        row,col,radius, time = gp.get_random_bomb_data()
+        row, col, radius, time = gp.get_random_bomb_data()
 
-        if not 0 <= row < len(self.board) and 0 <= col < len(self.board[0]):
+        if not 0 <= row < self.__height and 0 <= col < self.__width:
             return False
         # if a cell in the board already has apple/bomb/snake/shockwave
         if self.cell_content((row, col)):
             return False
         self.bomb = Bomb(row, col, radius, time)
-        self.board[row][col] = BOMB
+        self.__bomb_prints.append((row, col))
         return True
 
     def add_snake(self):
@@ -69,7 +77,7 @@ class Board:
         :return: None
         """
         self.snake = Snake()
-        self.snake.create_snake(START_ROW, START_COL)
+        self.snake.create_snake(self.__snake_start[0], self.__snake_start[1])
         s_cords = self.snake.get_snake_cells()
         for cell in s_cords:
             self.board[cell[0]][cell[1]] = SNAKE
@@ -105,41 +113,92 @@ class Board:
             return True, False
 
         # if the snake hits the shockwave of a bomb
-        #todo !!!!!!!!!!!!!!!!!
+        # todo !!!!!!!!!!!!!!!!!
         if ...:
             return True, False
 
         # if the snake ate an apple, act accordingly
         if self.cell_content(head_location) == APPLE:
-            pass  #  todo!!!!!!!!!!!!!!1
+            pass  # todo!!!!!!!!!!!!!!1
 
+    def draw(self, gd):
+        if self.bomb.is_exploded():
+            for cell in self.__bomb_prints:
+                gd.draw_cell(cell[1], cell[0], SHOCK_WAVE)
+        else:
+            b_loc = self.bomb.get_location()
+            gd.draw_cell(b_loc[1], b_loc[0], BOMB)
+
+        for apple in self.__lst_of_apples:
+            gd.draw_cell(apple[1], apple[0], APPLE)
+        # for i_row, row in enumerate(self.board):
+        #     for i_col in range(len(row)):
+        #         if row[i_col]:
+        #             gd.draw_cell(i_col, i_row, row[i_col])
+
+        # for cell in self.snake.get_snake_cells():
+        #     gd.draw_cell(cell[1], cell[0], "black")
+        # b_coords = self.bomb.get_location()
+        # gd.draw_cell(b_coords[1], b_coords[0], "red")
+
+    def update_display(self, key_clicked, prev_move):
+        """
+        changes all game object according to user input
+        :return:
+        """
+        self.bomb.update_time()
+        if self.bomb.is_exploded():
+            self.get_bomb_explosion()
+
+        # key_clicked = self.snake.possible_move(key_clicked, prev_move)
+        # if key_clicked is None:
+        #     prev_move = self.snake.move(prev_move)
+        # else:
+        #     prev_move = self.snake.move(key_clicked)
+        #
+        # move_result = self.check_snake_move()
+        # if not move_result:
+        #     # TODO: game_loss_drawing(
+        #     return False, prev_move
+
+        return True, prev_move
+        # self.__lst_of_apples
 
     def get_bomb_explosion(self):
-        width = len(self.board[0])
-        height = len(self.board)
-        shock_wave,collusion = self.bomb.get_explosion(self,width,height)
+        width = self.__width
+        height = self.__height
+        shock_wave, collusion = self.bomb.get_explosion(self, width, height)
+        self.__bomb_prints = []
         if shock_wave:
             if collusion:
                 for ram in collusion:
                     cell = self.cell_content(ram)
                     if cell == APPLE:
-                        self.board[ram[0]][ram[1]] = SHOCK_WAVE
+                        self.__bomb_prints.append(ram)
+                        del self.__lst_of_apples[ram]
+                        # TODO: apple list
                     else:
                         return False
-            else:
-                for coord in shock_wave:
-                    self.board[coord[0]][coord[1]] = SHOCK_WAVE
+            for coord in shock_wave:  # maybe change the order of the print
+                self.__bomb_prints.append(coord)
         else:
-            self.add_bomb()
+            self.create_new_bomb()
+
         return True
 
-    def __str__(self):
-        st = ""
-        for i in range(len(self.board)):
-            for j in range(len(self.board[0])):
-                if not self.board[i][j]:
-                    st += "_\t"
-                else:
-                    st += (self.board[i][j] + "\t")
-            st += "\n"
-        return st
+    def create_new_bomb(self):
+        self.__bomb_prints = []
+        result = False
+        while not result:
+            result = self.add_bomb()
+
+    # def __str__(self):
+    #     st = ""
+    #     for i in range(len(self.board)):
+    #         for j in range(len(self.board[0])):
+    #             if not self.board[i][j]:
+    #                 st += "_\t"
+    #             else:
+    #                 st += (self.board[i][j] + "\t")
+    #         st += "\n"
+    #     return st
