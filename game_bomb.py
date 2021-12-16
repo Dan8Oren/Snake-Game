@@ -52,9 +52,10 @@ class Bomb:
                 if abs(b_col - col) + abs(b_row - row) == radius:
                     explosion_coordinates.append((row, col))
                     if 0 <= row < board_hight and 0 <= col < board_width:
-                        explosion_coordinates.append((row, col))
                         if board.cell_content((row, col)):  # TODO: what should happen?
                             collusion_coordinates.append((row, col))
+                        else:
+                            explosion_coordinates.append((row, col))
                     else:
                         break
                         # TODO: should make a new bomb in a new location
@@ -62,6 +63,8 @@ class Bomb:
                 return explosion_coordinates, collusion_coordinates
         return [], []
 
+    def is_exploded(self):
+        return self.__is_exploded
 
     def update_time(self):
         self.__time -= 1

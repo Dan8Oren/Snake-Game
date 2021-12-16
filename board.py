@@ -2,13 +2,12 @@ import game_parameters as gp
 from apple import Apple
 from game_bomb import Bomb
 from snake import Snake
+from game_display import GameDisplay as gd
 
 SNAKE = "s"
 BOMB = "b"
 APPLE = "a"
-SHOCK_WAVE = "s"
-START_ROW = 10
-START_COL = 10
+SHOCK_WAVE = "o"
 
 
 class Board:
@@ -16,12 +15,14 @@ class Board:
     add description here
     """
 
-    def __init__(self):
+    def __init__(self,snake_row,snake_col):
         self.board = [[None for _ in range(gp.WIDTH)] for _ in
                         range(gp.HEIGHT)]
         self.__lst_of_apples = []
         self.bomb = None
+        self.__bomb_prints = []
         self.snake = None
+        self.__snake_start = (snake_row,snake_col)
 
     def cell_content(self, coordinate):
         """
@@ -60,6 +61,7 @@ class Board:
         if self.cell_content((row, col)):
             return False
         self.bomb = Bomb(row, col, radius, time)
+        self.__bomb_prints.append((row,col))
         self.board[row][col] = BOMB
         return True
 
@@ -69,7 +71,7 @@ class Board:
         :return: None
         """
         self.snake = Snake()
-        self.snake.create_snake(START_ROW, START_COL)
+        self.snake.create_snake(self.__snake_start[0], self.__snake_start[1])
         s_cords = self.snake.get_snake_cells()
         for cell in s_cords:
             self.board[cell[0]][cell[1]] = SNAKE
@@ -114,6 +116,31 @@ class Board:
             pass  #  todo!!!!!!!!!!!!!!1
 
 
+    def draw(self):
+        for cell in self.snake.get_snake_cells():
+            gd.draw_cell(cell[1], cell[0], "black")
+
+    def update_display(self, key_clicked, prev_move):
+        """
+        changes all game object according to user input
+        :return:
+        """
+        # TODO: Explosion
+        key_clicked = self.snake.possible_move(key_clicked, prev_move)
+        if key_clicked is None:
+            prev_move = self.snake.move(prev_move)
+        else:
+            prev_move = self.snake.move(key_clicked)
+
+        move_result = self.check_snake_move()
+        if not move_result:
+            #TODO: game_loss_drawing(
+            return False,prev_move
+        self.draw()
+
+        # self.bomb
+        # self.__lst_of_apples
+
     def get_bomb_explosion(self):
         width = len(self.board[0])
         height = len(self.board)
@@ -126,12 +153,17 @@ class Board:
                         self.board[ram[0]][ram[1]] = SHOCK_WAVE
                     else:
                         return False
-            else:
-                for coord in shock_wave:
+                for coord in shock_wave:  # maybe change the order of the print
                     self.board[coord[0]][coord[1]] = SHOCK_WAVE
         else:
+            self.remove_bomb()
             self.add_bomb()
+
         return True
+
+    def remove_bomb(self):
+        for cell in self.__bomb_prints:
+            self.board[cell[0]][cell[1]] = None
 
     def __str__(self):
         st = ""
