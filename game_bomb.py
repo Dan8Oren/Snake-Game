@@ -57,7 +57,8 @@ class Bomb:
                             explosion_coordinates.append((row, col))
                     else:
                         is_out_of_bounds = True
-        if not is_out_of_bounds:
+        lists_size = len(collusion_coordinates)+len(explosion_coordinates)
+        if not is_out_of_bounds and lists_size == 4*radius:
             return explosion_coordinates, collusion_coordinates
 
         return [], []
