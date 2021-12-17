@@ -121,7 +121,6 @@ class Board:
             if self.cell_content(cell) == BOMB:
                 return WRONG_BODY_MOVE
 
-
         # if the snake ate an apple, act accordingly
         if self.cell_content(head_location) == APPLE:
             self.snake_eats_apple(head_location)
@@ -134,7 +133,6 @@ class Board:
         apple_score = self.__lst_of_apples[apple_location].get_score()
         self.update_score(apple_score)
         del self.__lst_of_apples[apple_location]
-
 
     def draw(self, gd, game_status):
         snake_cells = self.snake.get_snake_cells()
@@ -154,17 +152,6 @@ class Board:
         for apple in self.__lst_of_apples:
             gd.draw_cell(apple[1], apple[0], APPLE)
 
-        snake_cells = self.snake.get_snake_cells()
-
-        # for i_row, row in enumerate(self.board):
-        #     for i_col in range(len(row)):
-        #         if row[i_col]:
-        #             gd.draw_cell(i_col, i_row, row[i_col])
-
-        # for cell in self.snake.get_snake_cells():
-        #     gd.draw_cell(cell[1], cell[0], "black")
-        # b_coords = self.bomb.get_location()
-        # gd.draw_cell(b_coords[1], b_coords[0], "red")
 
     def update_display(self, key_clicked, prev_move):
         """
@@ -200,12 +187,10 @@ class Board:
             if collusion:
                 for ram in collusion:
                     cell = self.cell_content(ram)
+                    self.__bomb_prints.append(ram)
                     if cell == APPLE:
-                        self.__bomb_prints.append(ram)
                         del self.__lst_of_apples[ram]
-                        # TODO: apple list
-                    else:
-                        return False
+
             for coord in shock_wave:  # maybe change the order of the print
                 self.__bomb_prints.append(coord)
         else:
@@ -219,14 +204,5 @@ class Board:
         while not result:
             result = self.add_bomb()
 
-    # def __str__(self):
-    #     st = ""
-    #     for i in range(len(self.board)):
-    #         for j in range(len(self.board[0])):
-    #             if not self.board[i][j]:
-    #                 st += "_\t"
-    #             else:
-    #                 st += (self.board[i][j] + "\t")
-    #         st += "\n"
-    #     return st
+
 
