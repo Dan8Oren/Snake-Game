@@ -7,6 +7,11 @@ SNAKE = "Black"
 BOMB = "red"
 APPLE = "green"
 SHOCK_WAVE = "orange"
+ALL_GOOD = 0
+WRONG_HEAD_MOVE = 1
+WRONG_BODY_MOVE = 2
+
+
 
 
 class Board:
@@ -14,15 +19,17 @@ class Board:
     add description here
     """
 
-    def __init__(self, snake_row, snake_col):
+    def __init__(self, snake_col, snake_row, snake_initial_length):
         # A Dictionary! key:Tuple of coords, value:Apple class object
         self.__lst_of_apples = {}  # ^^info^^
         self.bomb = None
         self.__bomb_prints = []
         self.snake = None
+        self.snake_initial_length = snake_initial_length
         self.__snake_start = (snake_row, snake_col)
         self.__height = gp.HEIGHT
         self.__width = gp.WIDTH
+        self.__score = 0
 
     def cell_content(self, coordinate):
         """
@@ -34,8 +41,15 @@ class Board:
             return BOMB
         if coordinate in self.__lst_of_apples:
             return APPLE
-        #  TODO: Add Snake
+        if coordinate in self.snake.get_snake_cells():
+            return SNAKE
         return None
+
+    def update_score(self, apple_score):
+        self.__score += apple_score
+
+    def get_score(self):
+        return self.__score
 
     def add_apple(self):
         """
@@ -77,16 +91,7 @@ class Board:
         :return: None
         """
         self.snake = Snake()
-        self.snake.create_snake(self.__snake_start[0], self.__snake_start[1])
-        s_cords = self.snake.get_snake_cells()
-        for cell in s_cords:
-            self.board[cell[0]][cell[1]] = SNAKE
-
-    def move_snake(self, movekey, prev_move_key):
-        """
-        :return:
-        """
-        pass
+        self.snake.create_snake(self.__snake_start[0], self.__snake_start[1], self.snake_initial_length)
 
     def check_snake_move(self):
         """
@@ -96,32 +101,49 @@ class Board:
         the game. False upon success
         second Value: True if the snake ate an apple, else False
         """
-        head_location = self.snake.get_head_location()
+        head_location = self.snake.get_head_location()  # (row, col)
         snake_cells = self.snake.get_snake_cells()
 
         # if the snake hits himself
         if head_location in snake_cells[1:]:
-            return True, False
+            return WRONG_HEAD_MOVE
 
         # if the snake crushes into the borders of the board
-        if head_location[0] < 0 or head_location[0] >= len(self.board) or \
-                head_location[1] < 0 or head_location[1] >= len(self.board[0]):
-            return True, False
+        if head_location[0] < 0 or head_location[0] >= gp.HEIGHT or head_location[1] < 0 or head_location[1] >= gp.WIDTH:
+            return WRONG_HEAD_MOVE
 
-        # if the snake hits a bomb
+        # if the snake hits a bomb/shockwave
         if self.cell_content(head_location) == BOMB:
-            return True, False
+            return WRONG_HEAD_MOVE
 
-        # if the snake hits the shockwave of a bomb
-        # todo !!!!!!!!!!!!!!!!!
-        if ...:
-            return True, False
+        # if the snake hits a shockwave
+        for cell in snake_cells:
+            if self.cell_content(cell) == BOMB:
+                return WRONG_BODY_MOVE
+
 
         # if the snake ate an apple, act accordingly
         if self.cell_content(head_location) == APPLE:
-            pass  # todo!!!!!!!!!!!!!!1
+            self.snake_eats_apple(head_location)
 
-    def draw(self, gd):
+        return ALL_GOOD
+
+    def snake_eats_apple(self, apple_location):
+        self.snake.has_eaten = True
+        self.snake.set_time_to_grow()
+        apple_score = self.__lst_of_apples[apple_location].get_score()
+        self.update_score(apple_score)
+        del self.__lst_of_apples[apple_location]
+
+
+    def draw(self, gd, game_status):
+        snake_cells = self.snake.get_snake_cells()
+        if game_status == WRONG_HEAD_MOVE:
+            for cell in snake_cells[1:]:
+                gd.draw_cell(cell[1], cell[0], SNAKE)
+        else:
+            for cell in snake_cells:
+                gd.draw_cell(cell[1], cell[0], SNAKE)
         if self.bomb.is_exploded():
             for cell in self.__bomb_prints:
                 gd.draw_cell(cell[1], cell[0], SHOCK_WAVE)
@@ -131,6 +153,9 @@ class Board:
 
         for apple in self.__lst_of_apples:
             gd.draw_cell(apple[1], apple[0], APPLE)
+
+        snake_cells = self.snake.get_snake_cells()
+
         # for i_row, row in enumerate(self.board):
         #     for i_col in range(len(row)):
         #         if row[i_col]:
@@ -150,18 +175,20 @@ class Board:
         if self.bomb.is_exploded():
             self.get_bomb_explosion()
 
-        # key_clicked = self.snake.possible_move(key_clicked, prev_move)
-        # if key_clicked is None:
-        #     prev_move = self.snake.move(prev_move)
-        # else:
-        #     prev_move = self.snake.move(key_clicked)
-        #
+        key_clicked = self.snake.possible_move(key_clicked, prev_move)
+        if self.snake.has_eaten:
+            self.snake.eat_apple_movement(key_clicked)
+            self.snake.update_time()
+        else:
+            self.snake.move(key_clicked)
+
+
         # move_result = self.check_snake_move()
         # if not move_result:
         #     # TODO: game_loss_drawing(
         #     return False, prev_move
-
-        return True, prev_move
+        is_game_ended = self.check_snake_move()
+        return is_game_ended, key_clicked
         # self.__lst_of_apples
 
     def get_bomb_explosion(self):
@@ -202,3 +229,4 @@ class Board:
     #                 st += (self.board[i][j] + "\t")
     #         st += "\n"
     #     return st
+

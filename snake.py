@@ -7,16 +7,15 @@ class SnakeNode:
     add description here
     """
 
-    def __init__(self, location, prev=None, next=None):
+    def __init__(self, location, next=None, prev=None):
         """
 
-        :param location: the location of the current node - tuple of (row,col)
-        :param prev:
+        :param location: the location of the current node - tuple of (row, col)
         :param next:
         """
         self.location = location
-        self.prev = prev
         self.next = next
+        self.prev = prev
 
 
 class Snake:
@@ -27,6 +26,9 @@ class Snake:
     def __init__(self):
         self.__head = self.__tail = None
         self.__length = 0
+        self.has_eaten = False
+        self.__time_to_grow = 0
+
 
     def get_head_location(self):
         return self.__head.location
@@ -45,40 +47,22 @@ class Snake:
         else:  # connect old head to new node
             self.__head.prev = node
             node.next = self.__head
-
         # update head
         self.__head = node
         self.__length += 1
 
-    def add_last(self, location):
-        """
-        :param location: the location of the new "snake cell"
-         to add to the tail .tuple of (row,col)
-        :return: None
-        """
-        node = SnakeNode(location, None, None)
-        if self.__tail is None:
-            # list was empty
-            self.__head = node
-        else:  # connect old tail to new node
-            self.__tail.next = node
-            node.prev = self.__tail
-        # update head
-        self.__tail = node
-        self.__length += 1
-
     def remove_last(self):
-        tail_location = self.__tail.location
+        d = self.__tail.location
         self.__tail = self.__tail.prev
         if self.__tail is None:  # list is now empty
             self.__head = None
         else:  # disconnect old tail
             self.__tail.next.prev = None
-        self.__tail.next = None
+            self.__tail.next = None
         self.__length -= 1
-        return tail_location
+        return d
 
-    def create_snake(self, row=START_ROW, col=START_COL):
+    def create_snake(self, row, col, initial_length):
         """ todo maybe it should be a board method, because there will be games
         todo with snakes that have 4 parts in the beginning
         create a snake in our game
@@ -86,9 +70,9 @@ class Snake:
         (10, 10)
         :return: None
         """
-        self.add_first((row, col))
-        self.add_last((row + 1, col))
-        self.add_last((row + 2, col))
+        for i in range(initial_length - 1, -1, -1):
+            self.add_first((row - i, col))
+
 
     def get_snake_cells(self):
         lst_of_cells = []
@@ -119,10 +103,14 @@ class Snake:
     def possible_move(self, movekey, prev_move_key):
         """
         checks if the user tried to move the snake in the opposite direction
+        or if he doesn't enter anything(None)
         :param movekey: the current movekey
         :param prev_move_key: the movekey of the previous move
         :return: The legal movekey for the snake to move
         """
+        if movekey is None:
+            return prev_move_key
+
         if (movekey == "Up" and prev_move_key == "Down") or (
                 movekey == "Down" and prev_move_key == "Up") or (
                 movekey == "Left" and prev_move_key == "Right") or (
@@ -142,30 +130,28 @@ class Snake:
         self.remove_last()
         return movekey
 
-    def eat_apple(self, movekey, prev_move_key):
+    def eat_apple_movement(self, movekey):
         """
         move the snake for one turn and increase it sizes
         :param movekey: the current movekey
         :param prev_move_key: the movekey of the previous move
         :return: None
         """
-        move = self.possible_move(movekey, prev_move_key)
-        next_head = self.movement_requirements(move)
+        next_head = self.movement_requirements(movekey)
         self.add_first(next_head)
 
+    def update_time(self):
+        self.__time_to_grow -= 1
+        if self.__time_to_grow == 0:
+            self.has_eaten = False
+
+    def set_time_to_grow(self):
+        self.__time_to_grow += 3
+
+    def get_length(self):
+        return self.__length
 
 
 
-# s = Snake()
-# s.create_snake()
-# print(s.get_snake_cells())
-# s.move("Up", "Up")
-# print(s.get_snake_cells())
-# s.move("Right", "Up")
-# print(s.get_snake_cells())
-# s.move("Left", "Right")
-# print(s.get_snake_cells())
-# s.eat_apple("Up", "Left")
-# print(s.get_snake_cells())
-# s.eat_apple("Down", "Up")
-# print(s.get_snake_cells())
+
+

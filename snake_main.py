@@ -1,4 +1,4 @@
-import game_parameters
+import game_parameters as gp
 from game_display import GameDisplay
 import board
 
@@ -14,27 +14,28 @@ def main_loop(gd: GameDisplay) -> None:
     gd.show_score(0)
 
     game_board = initialize_game()
-    play_game = True
+    is_game_ended = 0
     prev_move = "Up"
-    while play_game:
+    while not is_game_ended:
 
         key_clicked = gd.get_key_clicked()
-        check_input(key_clicked)  # TODO
-        play_game, prev_move = game_board.update_display(key_clicked,prev_move)
-        if game_board.get_num_apples() != NUM_APPLES:
-            create_apples(game_board)
-        game_board.draw(gd)
+        is_game_ended, prev_move = game_board.update_display(key_clicked, prev_move)
 
+        gd.show_score(game_board.get_score())
+        game_board.draw(gd, is_game_ended)
+        if game_board.get_num_apples() != NUM_APPLES:
+            # if there is no room for another apple, game is over
+            if game_board.snake.get_length() >= (gp.HEIGHT * gp.WIDTH) - 3:
+                is_game_ended = 1
+            else:
+                create_apples(game_board)
         gd.end_round()
 
 
-def check_input(key_clicked):
-    pass
-
 
 def initialize_game():
-    game_board = board.Board(START_ROW,START_COL)
-    # game_board.add_snake()
+    game_board = board.Board(START_COL, START_ROW, SNAKE_STARTING_LENGTH)
+    game_board.add_snake()
     create_bomb(game_board)
     create_apples(game_board)
 
