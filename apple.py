@@ -20,6 +20,3 @@ class Apple:
         """
         return self.__score
 
-    def __str__(self):  # TODO delete?
-        row, col = self.__location[0], self.__location[1]
-        return f"row is: {row}, col is: {col}"

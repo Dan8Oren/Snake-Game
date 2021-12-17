@@ -28,21 +28,20 @@ def main_loop(gd: GameDisplay) -> None:
         key_clicked = gd.get_key_clicked()
         is_game_ended, prev_move = snake_game.update_display(key_clicked,
                                                              prev_move)
-
         gd.show_score(snake_game.get_score())
-        snake_game.draw(gd, is_game_ended)
         if snake_game.get_num_apples() != NUM_APPLES:
             # if there is no room for another apple, game is over
             if snake_game.snake.get_length() >= (gp.HEIGHT * gp.WIDTH) - 3:
-                is_game_ended = 1
+                is_game_ended = 2
             else:
                 create_apples(snake_game)
+        snake_game.draw(gd, is_game_ended)
         gd.end_round()
 
 
 def initialize_game():
     """
-    creates all game objects according the the parameters decided.
+    creates all game objects according the parameters decided.
     :return: snake Game object
     """
     snake_game = game.Game(START_COL, START_ROW, SNAKE_STARTING_LENGTH)
