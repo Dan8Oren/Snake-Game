@@ -142,9 +142,11 @@ class Game:
 
     def snake_eats_apple(self, apple_location):
         """
-        TODO
-        :param apple_location:
-        :return:
+        This function performs all the actions to be done when a snake eats an
+        apple: the snake will grow, the score of the apple is added to the
+        score of the game, the apple will be deleted from the game
+        :param apple_location: the location of an apple
+        :return: None
         """
         self.snake.has_eaten = True
         self.snake.set_time_to_grow()
@@ -156,7 +158,10 @@ class Game:
         """
         Draws the game according to current game objects status
         :param gd: Game_Display object
-        :param game_status: TODO
+        :param game_status:
+        0 if the game can continue
+        1 if the head of the snake got stuck in himself/the borders
+        2 if a bomb/shockwave hits the snake
         :return: None
         """
         snake_cells = self.snake.get_snake_cells()
