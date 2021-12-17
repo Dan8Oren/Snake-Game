@@ -20,9 +20,11 @@ def main_loop(gd: GameDisplay) -> None:
 
     snake_game = initialize_game()
     is_game_ended = 0
+    snake_game.draw(gd, is_game_ended)
+    gd.end_round()
     prev_move = "Up"
     while not is_game_ended:
-
+        # print(snake_game.snake.get_snake_cells())
         key_clicked = gd.get_key_clicked()
         is_game_ended, prev_move = snake_game.update_display(key_clicked,
                                                              prev_move)
@@ -52,6 +54,11 @@ def initialize_game():
 
 
 def create_apples(snake_game):
+    """
+    adds apples to the game
+    :param snake_game: a game object
+    :return: None
+    """
     apples_added = snake_game.get_num_apples()
     while apples_added != NUM_APPLES:
         result = snake_game.add_apple()

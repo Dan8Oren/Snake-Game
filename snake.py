@@ -4,14 +4,15 @@ START_COL = 10
 
 class SnakeNode:
     """
-    add description here
+    a class that represents s single cell in the snake's "body"
     """
 
     def __init__(self, location, next=None, prev=None):
         """
 
         :param location: the location of the current node - tuple of (row, col)
-        :param next:
+        :param next: a pointer to the next cell
+        :param prev: a pointer to the previous cell
         """
         self.location = location
         self.next = next
@@ -20,7 +21,8 @@ class SnakeNode:
 
 class Snake:
     """
-    add description here
+    This class represents a snake. The snake is a doubly linked list.
+    This class has all the methods to change and update the snake's attributes
     """
 
     def __init__(self):
@@ -30,11 +32,13 @@ class Snake:
         self.__time_to_grow = 0
 
     def get_head_location(self):
+        """
+        :return: the location of the head of the snake
+        """
         return self.__head.location
 
     def add_first(self, location):
         """
-
         :param location: the location of the new "snake cell"
          to add to the head .tuple of (row,col)
         :return: None
@@ -51,7 +55,10 @@ class Snake:
         self.__length += 1
 
     def remove_last(self):
-        d = self.__tail.location
+        """
+        remove the tail of the snail
+        :return: None
+        """
         self.__tail = self.__tail.prev
         if self.__tail is None:  # list is now empty
             self.__head = None
@@ -59,7 +66,6 @@ class Snake:
             self.__tail.next.prev = None
             self.__tail.next = None
         self.__length -= 1
-        return d
 
     def create_snake(self, row, col, initial_length):
         """ todo maybe it should be a board method, because there will be games
@@ -132,19 +138,29 @@ class Snake:
         """
         move the snake for one turn and increase it sizes
         :param movekey: the current movekey
-        :param prev_move_key: the movekey of the previous move
         :return: None
         """
         next_head = self.movement_requirements(movekey)
         self.add_first(next_head)
 
     def update_time(self):
+        """
+        calculates the number of turns for the snake to increase its size
+        :return: None
+        """
         self.__time_to_grow -= 1
         if self.__time_to_grow == 0:
             self.has_eaten = False
 
     def set_time_to_grow(self):
+        """
+        if a snake ate an apple, it will grow for 3 turns
+        :return: None
+        """
         self.__time_to_grow += 3
 
     def get_length(self):
+        """
+        :return: the length of the snake
+        """
         return self.__length
