@@ -3,7 +3,7 @@ from apple import Apple
 from game_bomb import Bomb
 from snake import Snake
 
-SNAKE = "Black"
+SNAKE = "black"
 BOMB = "red"
 APPLE = "green"
 SHOCK_WAVE = "orange"
@@ -12,11 +12,11 @@ WRONG_HEAD_MOVE = 1
 WRONG_BODY_MOVE = 2
 
 
-
-
-class Board:
+class Game:
     """
-    add description here
+    The class Game,is the class that controls all Snake's objects, updates them
+    according the player choices and displays them to the player,
+    using Game Display objects. TODO: maybe rewrite
     """
 
     def __init__(self, snake_col, snake_row, snake_initial_length):
@@ -46,9 +46,17 @@ class Board:
         return None
 
     def update_score(self, apple_score):
+        """
+        Updates game score
+        :param apple_score: how many points should be added to score
+        :return: updated game score
+        """
         self.__score += apple_score
 
     def get_score(self):
+        """
+        :return: current game score
+        """
         return self.__score
 
     def add_apple(self):
@@ -67,6 +75,9 @@ class Board:
         return True
 
     def get_num_apples(self):
+        """
+        :return: number of apples currently in the game
+        """
         return len(self.__lst_of_apples)
 
     def add_bomb(self):
@@ -74,7 +85,7 @@ class Board:
         Adds a bomb to the board.
         :return: True upon success. False if failed
         """
-        row, col, radius, time = gp.get_random_bomb_data()
+        col, row, radius, time = gp.get_random_bomb_data()
 
         if not 0 <= row < self.__height and 0 <= col < self.__width:
             return False
@@ -91,7 +102,8 @@ class Board:
         :return: None
         """
         self.snake = Snake()
-        self.snake.create_snake(self.__snake_start[0], self.__snake_start[1], self.snake_initial_length)
+        self.snake.create_snake(self.__snake_start[0], self.__snake_start[1],
+                                self.snake_initial_length)
 
     def check_snake_move(self):
         """
@@ -109,7 +121,8 @@ class Board:
             return WRONG_HEAD_MOVE
 
         # if the snake crushes into the borders of the board
-        if head_location[0] < 0 or head_location[0] >= gp.HEIGHT or head_location[1] < 0 or head_location[1] >= gp.WIDTH:
+        if head_location[0] < 0 or head_location[0] >= gp.HEIGHT or \
+                head_location[1] < 0 or head_location[1] >= gp.WIDTH:
             return WRONG_HEAD_MOVE
 
         # if the snake hits a bomb/shockwave
@@ -128,6 +141,11 @@ class Board:
         return ALL_GOOD
 
     def snake_eats_apple(self, apple_location):
+        """
+        TODO
+        :param apple_location:
+        :return:
+        """
         self.snake.has_eaten = True
         self.snake.set_time_to_grow()
         apple_score = self.__lst_of_apples[apple_location].get_score()
@@ -135,6 +153,12 @@ class Board:
         del self.__lst_of_apples[apple_location]
 
     def draw(self, gd, game_status):
+        """
+        Draws the game according to current game objects status
+        :param gd: Game_Display object
+        :param game_status: TODO
+        :return: None
+        """
         snake_cells = self.snake.get_snake_cells()
         if game_status == WRONG_HEAD_MOVE:
             for cell in snake_cells[1:]:
@@ -152,11 +176,14 @@ class Board:
         for apple in self.__lst_of_apples:
             gd.draw_cell(apple[1], apple[0], APPLE)
 
-
     def update_display(self, key_clicked, prev_move):
         """
-        changes all game object according to user input
-        :return:
+        changes all game objects according to user input
+        :param key_clicked: A key the player pressed
+        :param prev_move: previous snake move
+        :return: Tuple of (boolean,string),
+        Boolean: True to keep playing, False otherwise
+        String: the snake move in this round
         """
         self.bomb.update_time()
         if self.bomb.is_exploded():
@@ -169,16 +196,14 @@ class Board:
         else:
             self.snake.move(key_clicked)
 
-
-        # move_result = self.check_snake_move()
-        # if not move_result:
-        #     # TODO: game_loss_drawing(
-        #     return False, prev_move
         is_game_ended = self.check_snake_move()
         return is_game_ended, key_clicked
-        # self.__lst_of_apples
 
     def get_bomb_explosion(self):
+        """
+        Gets the bomb explosion radius, checks collusion with apples
+        :return: None
+        """
         width = self.__width
         height = self.__height
         shock_wave, collusion = self.bomb.get_explosion(self, width, height)
@@ -196,13 +221,12 @@ class Board:
         else:
             self.create_new_bomb()
 
-        return True
-
     def create_new_bomb(self):
+        """
+        creates new bomb in Game
+        :return: None
+        """
         self.__bomb_prints = []
         result = False
         while not result:
             result = self.add_bomb()
-
-
-
