@@ -16,7 +16,8 @@ class Game:
     """
     The class Game,is the class that controls all Snake's objects, updates them
     according the player choices and displays them to the player,
-    using Game Display objects. TODO: maybe rewrite
+    using Game Display objects.
+    Receives the snake initial position and length to start.
     """
 
     def __init__(self, snake_col, snake_row, snake_initial_length):
@@ -25,7 +26,7 @@ class Game:
         self.bomb = None
         self.__bomb_prints = []
         self.snake = None
-        self.snake_initial_length = snake_initial_length
+        self.__snake_initial_length = snake_initial_length
         self.__snake_start = (snake_row, snake_col)
         self.__height = gp.HEIGHT
         self.__width = gp.WIDTH
@@ -67,7 +68,7 @@ class Game:
         col, row, score = gp.get_random_apple_data()
         if not 0 <= row < self.__height and 0 <= col < self.__width:
             return False
-        # if a cell in the board already has apple/bomb/snake/shockwave
+        # if a cell in the board already has apple/__bomb/snake/shockwave
         if self.cell_content((row, col)):
             return False
         apple = Apple(row, col, score)
@@ -82,14 +83,14 @@ class Game:
 
     def add_bomb(self):
         """
-        Adds a bomb to the board.
+        Adds a __bomb to the board.
         :return: True upon success. False if failed
         """
         col, row, radius, time = gp.get_random_bomb_data()
 
         if not 0 <= row < self.__height and 0 <= col < self.__width:
             return False
-        # if a cell in the board already has apple/bomb/snake/shockwave
+        # if a cell in the board already has apple/__bomb/snake/shockwave
         if self.cell_content((row, col)):
             return False
         self.bomb = Bomb(row, col, radius, time)
@@ -103,7 +104,7 @@ class Game:
         """
         self.snake = Snake()
         self.snake.create_snake(self.__snake_start[0], self.__snake_start[1],
-                                self.snake_initial_length)
+                                self.__snake_initial_length)
 
     def check_snake_move(self):
         """
@@ -125,7 +126,7 @@ class Game:
                 head_location[1] < 0 or head_location[1] >= gp.WIDTH:
             return WRONG_HEAD_MOVE
 
-        # if the snake hits a bomb/shockwave
+        # if the snake hits a __bomb/shockwave
         if self.cell_content(head_location) == BOMB:
             return WRONG_HEAD_MOVE
 
@@ -161,7 +162,7 @@ class Game:
         :param game_status:
         0 if the game can continue
         1 if the head of the snake got stuck in himself/the borders
-        2 if a bomb/shockwave hits the snake
+        2 if a __bomb/shockwave hits the snake
         :return: None
         """
         snake_cells = self.snake.get_snake_cells()
@@ -171,12 +172,13 @@ class Game:
         else:
             for cell in snake_cells:
                 gd.draw_cell(cell[1], cell[0], SNAKE)
-        if self.bomb.is_exploded():
-            for cell in self.__bomb_prints:
-                gd.draw_cell(cell[1], cell[0], SHOCK_WAVE)
-        else:
-            b_loc = self.bomb.get_location()
-            gd.draw_cell(b_loc[1], b_loc[0], BOMB)
+        if self.bomb:
+            if self.bomb.is_exploded():
+                for cell in self.__bomb_prints:
+                    gd.draw_cell(cell[1], cell[0], SHOCK_WAVE)
+            else:
+                b_loc = self.bomb.get_location()
+                gd.draw_cell(b_loc[1], b_loc[0], BOMB)
 
         for apple in self.__lst_of_apples:
             gd.draw_cell(apple[1], apple[0], APPLE)
@@ -206,7 +208,7 @@ class Game:
 
     def get_bomb_explosion(self):
         """
-        Gets the bomb explosion radius, checks collusion with apples
+        Gets the __bomb explosion radius, checks collusion with apples
         :return: None
         """
         width = self.__width
@@ -224,11 +226,11 @@ class Game:
             for coord in shock_wave:  # maybe change the order of the print
                 self.__bomb_prints.append(coord)
         else:
-            self.create_new_bomb()
+            self.bomb = None
 
     def create_new_bomb(self):
         """
-        creates new bomb in Game
+        creates new __bomb in Game
         :return: None
         """
         self.__bomb_prints = []

@@ -68,11 +68,12 @@ class Snake:
         self.__length -= 1
 
     def create_snake(self, row, col, initial_length):
-        """ todo maybe it should be a board method, because there will be games
-        todo with snakes that have 4 parts in the beginning
+        """
         create a snake in our game
-        :param initial_place: in our game, the head of the snake located in
+        :param initial_length: in our game, the head of the snake located in
         (10, 10)
+        :param col: starting column of the snake's position
+        :param row: starting row of the snake's position
         :return: None
         """
         for i in range(initial_length - 1, -1, -1):
@@ -80,7 +81,7 @@ class Snake:
 
     def get_snake_cells(self):
         lst_of_cells = []
-        if self.__head == None:
+        if self.__head is None:
             return []
         cur = self.__head
         while cur:
@@ -96,13 +97,13 @@ class Snake:
         """
         row, col = self.get_head_location()
         if movekey == "Up":
-            return (row + 1, col)
+            return row + 1, col
         elif movekey == "Down":
-            return (row - 1, col)
+            return row - 1, col
         elif movekey == "Left":
-            return (row, col - 1)
+            return row, col - 1
         elif movekey == "Right":
-            return (row, col + 1)
+            return row, col + 1
 
     def possible_move(self, movekey, prev_move_key):
         """
@@ -126,7 +127,6 @@ class Snake:
         """
         moves the snake for one turn
         :param movekey: the current movekey
-        :param prev_move_key: the movekey of the previous move
         :return: the move the snake did eventually
         """
         next_head = self.movement_requirements(movekey)
