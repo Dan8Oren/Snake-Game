@@ -237,3 +237,12 @@ class Game:
         result = False
         while not result:
             result = self.add_bomb()
+
+    def get_colored_cells(self):
+        """
+        :return: the number of cells that are occupied in game
+        """
+        val = self.snake.get_length()
+        val += len(self.__lst_of_apples)
+        val += len(self.__bomb_prints)
+        return val
