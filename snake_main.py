@@ -32,7 +32,6 @@ def main_loop(gd: GameDisplay) -> None:
         gd.end_round()
 
 
-
 def initialize_game():
     game_board = board.Board(START_COL, START_ROW, SNAKE_STARTING_LENGTH)
     game_board.add_snake()
@@ -54,30 +53,6 @@ def create_bomb(game_board):
     is_bomb_created = False
     while not is_bomb_created:
         is_bomb_created = game_board.add_bomb()
-
-
-# def update_display(gd: GameDisplay, game_board, bomb_coords, snake_coords):
-#     end_game, apple_eaten = game_board.check_snake_move()
-#
-#     #the game is over: the snake hits himself/the borders/bomb/shockwave
-#     if end_game:
-#         draw_snake(snake_coords[1:], gd)
-#         return False
-#     else:
-#         draw_snake(snake_coords, gd)
-#
-#     if not game_board.bomb.is_exploded:
-#         gd.draw_cell(bomb_coords[1], bomb_coords[0], "red")
-#         game_board.bomb.update_time()
-#     else:
-#         if not game_board.get_bomb_explosion():
-#             return False
-#
-#         else:
-#             create_bomb(game_board)
-
-
-
 
 
 if __name__ == '__main__':
