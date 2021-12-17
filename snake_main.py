@@ -29,18 +29,17 @@ def main_loop(gd: GameDisplay) -> None:
                                                              prev_move)
         gd.show_score(snake_game.get_score())
 
-        if snake_game.get_num_apples() != NUM_APPLES:
-            # if there is no room for another apple, game is over
-            if snake_game.snake.get_length() >= (gp.HEIGHT * gp.WIDTH) - 3:
-                is_game_ended = 2
-            else:
+        if snake_game.get_colored_cells() != (gp.HEIGHT * gp.WIDTH):
+            if snake_game.get_num_apples() != NUM_APPLES:
                 create_apples(snake_game)
+        else:  # if there is no room for another apple, game is over
+            is_game_ended = 2
+
         if not snake_game.bomb:
-            # if there is no room for a new bomb, game is over
-            if snake_game.snake.get_length() >= (gp.HEIGHT * gp.WIDTH) - 3:
-                is_game_ended = 2
-            else:
+            if snake_game.get_colored_cells() != (gp.HEIGHT * gp.WIDTH):
                 create_bomb(snake_game)
+            else:  # if there is no room for a new bomb, game is over
+                is_game_ended = 2
 
         snake_game.draw(gd, is_game_ended)
         gd.end_round()
