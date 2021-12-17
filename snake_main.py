@@ -1,6 +1,6 @@
+import game
 import game_parameters as gp
 from game_display import GameDisplay
-import board
 
 NUM_BOMBS = 1
 SNAKE_STARTING_LENGTH = 3
@@ -11,56 +11,66 @@ START_COL = 10
 
 
 def main_loop(gd: GameDisplay) -> None:
+    """
+    The main function that plays the game
+    :param gd: GameDisplay object
+    :return: None
+    """
     gd.show_score(0)
 
-    game_board = initialize_game()
+    snake_game = initialize_game()
     is_game_ended = 0
     prev_move = "Up"
     while not is_game_ended:
 
         key_clicked = gd.get_key_clicked()
-        is_game_ended, prev_move = game_board.update_display(key_clicked, prev_move)
+        is_game_ended, prev_move = snake_game.update_display(key_clicked,
+                                                             prev_move)
 
-        gd.show_score(game_board.get_score())
-        game_board.draw(gd, is_game_ended)
-        if game_board.get_num_apples() != NUM_APPLES:
+        gd.show_score(snake_game.get_score())
+        snake_game.draw(gd, is_game_ended)
+        if snake_game.get_num_apples() != NUM_APPLES:
             # if there is no room for another apple, game is over
-            if game_board.snake.get_length() >= (gp.HEIGHT * gp.WIDTH) - 3:
+            if snake_game.snake.get_length() >= (gp.HEIGHT * gp.WIDTH) - 3:
                 is_game_ended = 1
             else:
-                create_apples(game_board)
+                create_apples(snake_game)
         gd.end_round()
 
 
 def initialize_game():
-    game_board = board.Board(START_COL, START_ROW, SNAKE_STARTING_LENGTH)
-    game_board.add_snake()
-    create_bomb(game_board)
-    create_apples(game_board)
+    """
+    creates all game objects according the the parameters decided.
+    :return: snake Game object
+    """
+    snake_game = game.Game(START_COL, START_ROW, SNAKE_STARTING_LENGTH)
+    snake_game.add_snake()
+    create_bomb(snake_game)
+    create_apples(snake_game)
 
-    return game_board
+    return snake_game
 
 
-def create_apples(game_board):
-    apples_added = game_board.get_num_apples()
+def create_apples(snake_game):
+    apples_added = snake_game.get_num_apples()
     while apples_added != NUM_APPLES:
-        result = game_board.add_apple()
+        result = snake_game.add_apple()
         if result:
             apples_added += 1
 
 
-def create_bomb(game_board):
+def create_bomb(snake_game):
+    """
+    creates a new bomb in game
+    #TODO: should we check if there is no place on board as well?
+    :param snake_game: current game board
+    :return: None
+    """
     is_bomb_created = False
     while not is_bomb_created:
-        is_bomb_created = game_board.add_bomb()
+        is_bomb_created = snake_game.add_bomb()
 
 
 if __name__ == '__main__':
     gd = GameDisplay()
     gd.start()
-
-
-
-
-
-

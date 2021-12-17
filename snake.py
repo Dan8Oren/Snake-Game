@@ -29,7 +29,6 @@ class Snake:
         self.has_eaten = False
         self.__time_to_grow = 0
 
-
     def get_head_location(self):
         return self.__head.location
 
@@ -72,7 +71,6 @@ class Snake:
         """
         for i in range(initial_length - 1, -1, -1):
             self.add_first((row - i, col))
-
 
     def get_snake_cells(self):
         lst_of_cells = []
@@ -150,8 +148,3 @@ class Snake:
 
     def get_length(self):
         return self.__length
-
-
-
-
-

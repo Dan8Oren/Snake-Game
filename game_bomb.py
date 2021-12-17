@@ -1,8 +1,7 @@
-import game_display as gp
-
 class Bomb:
     """
-    add description here
+    Snake's Bomb class, has a location,explosion radius,time and
+    a status (is_exploded)
     """
 
     def __init__(self, row, col, radius, time):
@@ -18,21 +17,20 @@ class Bomb:
         """
         return self.__location
 
-    def get_explosion(self,board,board_width,board_hight):
+    def get_explosion(self, game, board_width, board_height):
         """
         gets the specific radius coordinates of a bomb explosion,
-        updates the bomb status to exploded, updates if the bomb should be
-        relocated (end_bomb)
-        :param board: current board (only using it's size)
-        returns: list of explosion coordinates,
+        updates the bomb status to exploded,
+        :param game: current game (only using it's size)
+        :param board_height: games display maximum rows
+        :param board_width: games display maximum columns
+        :returns: list of explosion coordinates,
          collusion coordinates and a boolean if bomb should get a new location
         """
         if self.__radius:
             radius = self.__radius.pop()
         else:
             return None, None  # Shouldn't happen
-        if not self.__radius:
-            self.end_bomb = True
         if radius == 0:
             return [self.__location], None
 
@@ -42,7 +40,7 @@ class Bomb:
         start_col = 0
         b_row = self.__location[0]
         b_col = self.__location[1]
-        if 0 <= b_row - radius < board_hight:
+        if 0 <= b_row - radius < board_height:
             start_row = b_row - radius
         if 0 <= b_col - radius < board_width:
             start_col = b_col - radius
@@ -52,8 +50,8 @@ class Bomb:
                 break
             for col in range(start_col, start_col + (2 * radius) + 1):
                 if abs(b_col - col) + abs(b_row - row) == radius:
-                    if 0 <= row < board_hight and 0 <= col < board_width:
-                        if board.cell_content((row, col)):
+                    if 0 <= row < board_height and 0 <= col < board_width:
+                        if game.cell_content((row, col)):
                             collusion_coordinates.append((row, col))
                         else:
                             explosion_coordinates.append((row, col))
@@ -65,9 +63,16 @@ class Bomb:
         return [], []
 
     def is_exploded(self):
+        """
+        :return: True if bomb is in explosion status, False otherwise
+        """
         return self.__is_exploded
 
     def update_time(self):
+        """
+        makes the bomb clock to tick
+        :return: None
+        """
         self.__time -= 1
         if self.__time == 0:
             self.__is_exploded = True
